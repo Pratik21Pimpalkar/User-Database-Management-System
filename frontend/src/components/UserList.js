@@ -2,7 +2,8 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";import EditIcon from '@mui/icons-material/Edit';
+import Table from "@mui/material/Table";
+import EditIcon from "@mui/icons-material/Edit";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
@@ -21,6 +22,8 @@ import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
+import UpdateUser from "./UpdateUser";
+import axios from "axios";
 
 function createData(id, fname, lname, address, program, marital, country) {
   return {
@@ -34,25 +37,25 @@ function createData(id, fname, lname, address, program, marital, country) {
   };
 }
 
-const rows = [
-  createData(12, "John Cena", "Morrison", "Chicago", "MBA", "Yes", "USA"),
-  createData(2, "Doreamon", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(4, "Gian", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(9, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(100, "John Cena", "Morrison", "Chicago", "MBA", "Yes", "USA"),
-  createData(88, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(966, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(5, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(12, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(1, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(45, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(6, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(32, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(33, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(25, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(14, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-  createData(17, "John Cena", "Morrison", "Chicago", "MBA", "No", "USA"),
-];
+// const rows = [
+//   createData(12, "John Cena", "Morrison", "Chicago", "MBA", "Yes", "India"),
+//   createData(2, "Doreamon", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(4, "Gian", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(9, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(100, "John Cena", "Morrison", "Chicago", "MBA", "Yes", "India"),
+//   createData(88, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(966, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(5, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(12, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(1, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(45, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(6, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(32, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(33, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(25, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(14, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+//   createData(17, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
+// ];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -257,6 +260,34 @@ export default function UserList() {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
+  const [list, setList] = React.useState([]);
+  const getUserCollection = async () => {
+    try {
+      const list = await axios.get(`http://localhost:8000/getList`);
+      setList(list.data);
+      console.log(list);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const rows = list;
+  
+  const deleteData = async (id) => {
+    try {
+      const deleteUser = await axios.post(`http://localhost:8000/delete`, {
+        id,
+      });
+      const newList= rows.filter(ele=>ele.id!=id);
+      setList(newList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  React.useEffect(() => {
+    getUserCollection();
+  }, [10]);
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -310,6 +341,20 @@ export default function UserList() {
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
+  const [userUpdate, setUserUpdate] = React.useState({
+    id: "",
+    fname: "",
+    lname: "",
+    address: "",
+    country: "",
+    marital: "",
+  });
+  const [open, setOpen] = React.useState(false);
+  const sendData = (id, fname, lname, address, country, marital) => {
+    setOpen(true);
+    setUserUpdate({ id, fname, lname, address, country, marital });
+  };
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -366,14 +411,36 @@ export default function UserList() {
                       >
                         {row.id}
                       </TableCell>
-                      <TableCell  align="right">{row.fname}</TableCell>
+                      <TableCell align="right">{row.fname}</TableCell>
                       <TableCell align="right">{row.lname}</TableCell>
                       <TableCell align="right">{row.address}</TableCell>
                       <TableCell align="right">{row.program}</TableCell>
                       <TableCell align="right">{row.marital}</TableCell>
                       <TableCell align="right">{row.country}</TableCell>
-                      <TableCell align="right" style={{cursor:"pointer"}} ><DeleteIcon/></TableCell>
-                      <TableCell align="right"  style={{cursor:"pointer"}}><EditIcon/></TableCell>
+
+                      <TableCell
+                        align="right"
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          sendData(
+                            row.id,
+                            row.fname,
+                            row.lname,
+                            row.address,
+                            row.country,
+                            row.marital
+                          )
+                        }
+                      >
+                        <EditIcon />
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => deleteData(row.id)}
+                      >
+                        <DeleteIcon />
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -390,7 +457,7 @@ export default function UserList() {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[6, 10, 25]}
+          rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={rows.length}
           rowsPerPage={rowsPerPage}
@@ -402,6 +469,12 @@ export default function UserList() {
       <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
+      />
+      <UpdateUser
+        userUpdate={userUpdate}
+        setUserUpdate={setUserUpdate}
+        open={open}
+        setOpen={setOpen}
       />
     </Box>
   );

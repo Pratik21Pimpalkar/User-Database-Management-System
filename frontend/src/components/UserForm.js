@@ -3,6 +3,7 @@ import TextField from "@mui/material/TextField";
 import axios from "axios";
 import { Button, Grid, MenuItem } from "@mui/material";
 import { Container } from "@mui/system";
+import Modal from "./UpdateUser";
 
 export default function UserForm() {
   const [countrylist, setCountryList] = useState([]);
@@ -11,6 +12,7 @@ export default function UserForm() {
     fname: "",
     lname: "",
     address: "",
+    program:"",
     marital: "",
     country: "",
   });
@@ -30,6 +32,15 @@ export default function UserForm() {
         `http://localhost:8000/register`,
         userData
       );
+      setUserData({
+        id: "",
+    fname: "",
+    lname: "",
+    address: "",
+    program:"",
+    marital: "",
+    country: "",
+      })
     } catch (error) {
       console.log(error);
     }
@@ -40,7 +51,7 @@ export default function UserForm() {
 
   return (
     <Container maxWidth={"lg"} component="form" noValidate autoComplete="off">
-      <Grid container spacing={3}>
+      <Grid container spacing={3} justifyContent="center">
         <Grid item md={4} xs={12}>
           <TextField
             required
@@ -80,7 +91,7 @@ export default function UserForm() {
             name="lname"
           />
         </Grid>
-        <Grid item md={6} xs={12}>
+        <Grid item md={3} xs={12}>
           <TextField
             required
             id="standard-required"
@@ -93,7 +104,20 @@ export default function UserForm() {
             name="address"
           />
         </Grid>
-        <Grid item md={3} xs={6}>
+        <Grid item md={3} xs={4}>
+          <TextField
+            required
+            id="standard-required"
+            label="Program"
+            variant="standard"
+            fullWidth
+            onChange={handleInputs}
+            margin="dense"
+            value={userData.program}
+            name="program"
+          />
+        </Grid>
+        <Grid item md={3} xs={4}>
           <TextField
             margin="dense"
             id="demo-customized-select"
@@ -115,7 +139,7 @@ export default function UserForm() {
           </TextField>
         </Grid>
 
-        <Grid item md={3} xs={6}>
+        <Grid item md={3} xs={4}>
           <TextField
             margin="dense"
             id="demo-customized-select"
@@ -131,7 +155,7 @@ export default function UserForm() {
             <MenuItem value="No">No</MenuItem>
           </TextField>
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={3}>
           <Button variant="contained" onClick={registerUser}>
             Register User
           </Button>

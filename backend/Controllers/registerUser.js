@@ -1,14 +1,14 @@
 import User from "../Model/UserSchema.js";
 
 const registerUser = async (req, res) => {
-  const { id, fname, lname, address, marital, country } = req.body;
+  const { id, fname, lname, address,program, marital, country } = req.body;
     console.log(req.body);
-  if (!id || !fname || !lname || !address || !marital || !country) {
+  if (!id || !fname || !lname || !program|| !address || !marital || !country) {
     return res.status(400).send("Fill all credentials");
   }
   const exist = await User.findOne({ id });
   if (exist) return res.status(400).send("User with same id already exist.");
-  const user = new User({id,fname,lname,address,marital,country,});
+  const user = new User({id,fname,lname,address,marital,country,program});
 
   try {
     user.save();
