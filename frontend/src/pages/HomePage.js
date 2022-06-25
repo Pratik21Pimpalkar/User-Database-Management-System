@@ -1,14 +1,14 @@
-import React from 'react'
-import UserForm from '../components/UserForm'
-import UserList from '../components/UserList'
+import React from "react";
+import UserForm from "../components/UserForm";
+import UserList from "../components/UserList";
 
 const HomePage = () => {
   return (
     <div>
-        <UserForm/>
-        <UserList/>
+      <UserForm  />
+      <UserList  />
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

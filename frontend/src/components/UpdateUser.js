@@ -4,6 +4,8 @@ import Modal from "@mui/material/Modal";
 import { Container } from "@mui/system";
 import { Grid, MenuItem, TextField } from "@mui/material";
 import axios from "axios";
+import { ToastContainer, toast,Zoom } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const style = {
   position: "absolute",
@@ -17,8 +19,7 @@ const style = {
   p: 4,
 };
 const UpdateUser = ({ userUpdate, setUserUpdate, open, setOpen }) => {
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+    const handleClose = () => setOpen(false);
   const [countrylist, setCountryList] = useState([]);
 
   const handleInputs = (event) => {
@@ -34,11 +35,14 @@ const UpdateUser = ({ userUpdate, setUserUpdate, open, setOpen }) => {
     console.log(userUpdate);
     try {
       const sendData = await axios.post(
-        `http://localhost:8000/update`,
+        `${process.env.REACT_APP_API}update`,
         userUpdate
       );
+      handleClose();
+      toast.success("User Updated Successfully");
     } catch (error) {
       console.log(error);
+      toast.error(error.response.data);
     }
   };
   useEffect(() => {
@@ -101,7 +105,7 @@ const UpdateUser = ({ userUpdate, setUserUpdate, open, setOpen }) => {
                 name="lname"
               />
             </Grid>
-            <Grid item md={6} xs={12}>
+            <Grid item md={3} xs={12}>
               <TextField
                 required
                 id="standard-required"
@@ -113,6 +117,32 @@ const UpdateUser = ({ userUpdate, setUserUpdate, open, setOpen }) => {
                 value={userUpdate.address}
                 name="address"
               />
+            </Grid>
+            <Grid item md={3} xs={12}>
+              <TextField
+                required
+                id="standard-required"
+                label="Program"
+                variant="standard"
+                fullWidth
+                select
+                onChange={handleInputs}
+                margin="dense"
+                value={userUpdate.program}
+                name="program"
+              >
+                <MenuItem key="Information Technology" value="Information Technology">
+            Information Technology
+                </MenuItem>
+            <MenuItem key="Computer Science" value="Computer Science">
+            Computer Science
+                </MenuItem>
+            <MenuItem key="Electronics & Communication" value="Electronics & Communication">
+            Electronics & Communication
+                </MenuItem>
+            <MenuItem key="Civil Engineering" value="Civil Engineering">
+            Civil Engineering
+                </MenuItem></TextField>
             </Grid>
             <Grid item md={3} xs={6}>
               <TextField
@@ -158,6 +188,15 @@ const UpdateUser = ({ userUpdate, setUserUpdate, open, setOpen }) => {
               </Button>
             </Grid>
           </Grid>
+          <ToastContainer
+            position="top-center"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            theme="colored"
+            transition={Zoom}
+          />
         </Container>
       </Modal>
     </div>

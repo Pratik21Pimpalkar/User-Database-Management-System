@@ -14,48 +14,17 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
 import UpdateUser from "./UpdateUser";
 import axios from "axios";
+import { ToastContainer, toast, Zoom } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-function createData(id, fname, lname, address, program, marital, country) {
-  return {
-    id,
-    fname,
-    lname,
-    address,
-    program,
-    marital,
-    country,
-  };
-}
 
-// const rows = [
-//   createData(12, "John Cena", "Morrison", "Chicago", "MBA", "Yes", "India"),
-//   createData(2, "Doreamon", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(4, "Gian", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(9, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(100, "John Cena", "Morrison", "Chicago", "MBA", "Yes", "India"),
-//   createData(88, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(966, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(5, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(12, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(1, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(45, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(6, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(32, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(33, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(25, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(14, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-//   createData(17, "John Cena", "Morrison", "Chicago", "MBA", "No", "India"),
-// ];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -134,11 +103,8 @@ const headCells = [
 
 function EnhancedTableHead(props) {
   const {
-    onSelectAllClick,
     order,
     orderBy,
-    numSelected,
-    rowCount,
     onRequestSort,
   } = props;
   const createSortHandler = (property) => (event) => {
@@ -146,7 +112,7 @@ function EnhancedTableHead(props) {
   };
 
   return (
-    <TableHead>
+    <TableHead style={{background:"#680020"}}>
       <TableRow>
         {/* <TableCell padding="checkbox">
           <Checkbox
@@ -165,6 +131,7 @@ function EnhancedTableHead(props) {
             align={headCell.numeric ? "center" : "right"}
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
+            style={{color:'white', fontWeight:500}}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -226,8 +193,9 @@ const EnhancedTableToolbar = (props) => {
           variant="h6"
           id="tableTitle"
           component="div"
+          style={{fontSize:"1.5rem", fontWeight:500,margin:"1rem 0"}}
         >
-          Student's List
+          User's List
         </Typography>
       )}
 
@@ -254,7 +222,7 @@ EnhancedTableToolbar.propTypes = {
 
 export default function UserList() {
   const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("fname");
+  const [orderBy, setOrderBy] = React.useState("id");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
@@ -263,7 +231,7 @@ export default function UserList() {
   const [list, setList] = React.useState([]);
   const getUserCollection = async () => {
     try {
-      const list = await axios.get(`http://localhost:8000/getList`);
+      const list = await axios.get(`${process.env.REACT_APP_API}getList`);
       setList(list.data);
       console.log(list);
     } catch (error) {
@@ -274,19 +242,21 @@ export default function UserList() {
   
   const deleteData = async (id) => {
     try {
-      const deleteUser = await axios.post(`http://localhost:8000/delete`, {
+      const deleteUser = await axios.post(`${process.env.REACT_APP_API}delete`, {
         id,
       });
-      const newList= rows.filter(ele=>ele.id!=id);
+      const newList= rows.filter(ele=>ele.id!==id);
       setList(newList);
+      toast.info("User deleted Successfully")
     } catch (error) {
       console.log(error);
+      toast.error(error.response.data)
     }
   };
 
   React.useEffect(() => {
     getUserCollection();
-  }, [10]);
+  }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -347,17 +317,18 @@ export default function UserList() {
     fname: "",
     lname: "",
     address: "",
+    program:"",
     country: "",
     marital: "",
   });
   const [open, setOpen] = React.useState(false);
-  const sendData = (id, fname, lname, address, country, marital) => {
+  const sendData = (id, fname, lname, address,program, country, marital) => {
     setOpen(true);
-    setUserUpdate({ id, fname, lname, address, country, marital });
+    setUserUpdate({ id, fname, lname, address,program, country, marital });
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", marginTop:"2.5rem" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
@@ -365,6 +336,7 @@ export default function UserList() {
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
             size={dense ? "small" : "medium"}
+            style={{backgroundColor:"#680020"}}
           >
             <EnhancedTableHead
               numSelected={selected.length}
@@ -392,6 +364,7 @@ export default function UserList() {
                       tabIndex={-1}
                       key={row.id}
                       selected={isItemSelected}
+                      style ={ index % 2? { background : "white" }:{ background : "#F7F8FC" }}
                     >
                       {/* <TableCell padding="checkbox">
                         <Checkbox
@@ -427,6 +400,7 @@ export default function UserList() {
                             row.fname,
                             row.lname,
                             row.address,
+                            row.program,
                             row.country,
                             row.marital
                           )
@@ -466,15 +440,25 @@ export default function UserList() {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
+      {/* <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
-      />
+      /> */}
       <UpdateUser
         userUpdate={userUpdate}
         setUserUpdate={setUserUpdate}
         open={open}
         setOpen={setOpen}
+      />
+       <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        transition={Zoom}
+                theme="colored"
+  
       />
     </Box>
   );

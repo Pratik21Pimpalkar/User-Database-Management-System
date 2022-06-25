@@ -22,6 +22,10 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  program: {
+    type: String,
+    required: true,
+  },
   country: {
     type: String,
     required: true,
